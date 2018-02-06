@@ -4,7 +4,15 @@ using System.Collections;
 public enum BrickState {Untouched, Weakened, Destroyed};
 
 public class Brick : MonoBehaviour {
+    [SerializeField]
+    private RowManager mRowManager;
+    [SerializeField]
+    private int mValue = 1;
+
     BrickState mState = BrickState.Untouched;
+
+
+
 	// Use this for initialization
 	void Start () {
         GetComponent<Renderer>().material.color = Color.cyan;
@@ -45,8 +53,15 @@ public class Brick : MonoBehaviour {
 
     private void DestroyBrick()
     {
-        mState = BrickState.Destroyed;
         //TODO: handle any behaviors on destruction/send any messages to a manager that does that
+        //TOOD: play Destruction effects
+
+        mState = BrickState.Destroyed;
+        if (mRowManager)
+        {
+            mRowManager.BrickDestroyed();
+        }
+        GameManager.instance.IncreaseScore(mValue);
         gameObject.SetActive(false); // disable object rather than destroy it, because it'll be reused for future levels.
     }
 

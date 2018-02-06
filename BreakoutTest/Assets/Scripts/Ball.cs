@@ -22,7 +22,7 @@ public class Ball : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+        mRigidBody2D.velocity = mRigidBody2D.velocity.normalized * moveSpeed;
 	}
 
     public void Launch()
@@ -59,18 +59,31 @@ public class Ball : MonoBehaviour {
         {
             Vector2 normal = coll.contacts[0].normal;
             //Debug.Log("relativeVel is " + coll.relativeVelocity);
-            mRigidBody2D.AddForce(Vector2.Reflect(coll.relativeVelocity.normalized, normal) * moveSpeed, ForceMode2D.Impulse);
+            mRigidBody2D.AddForce(Vector2.Reflect(coll.relativeVelocity.normalized, normal).normalized * moveSpeed, ForceMode2D.Impulse);
+            Debug.Log("Speed is: " + mRigidBody2D.velocity.magnitude);
             //Debug.Log("New: " + mRigidBody2D.velocity);
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D coll)
+    {
+        if (coll.gameObject.GetComponent<Paddle>())
+        {
+            Vector2 newDir = (transform.position - coll.transform.position).normalized;
+            if (newDir.y < 0) //don't let ball bounce downwards from paddle?
+            {
+                newDir.y *= -1;
+            }
+            mRigidBody2D.velocity = moveSpeed * newDir;
         }
     }
     void OnTriggerEnter2D(Collider2D coll)
     {
         if (coll.gameObject.layer == LayerMask.NameToLayer("Floor"))
         {
-            // TODO: inform GameManager that ball died;
+            // TODO: inform GameManager that ball died, then destroy self
             GameManager.instance.BallDied();
             Destroy(gameObject);
-
         }
     }
 

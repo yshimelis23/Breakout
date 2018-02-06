@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Paddle : MonoBehaviour {
 
-    public float moveSpeed = 2.0f;
+    float moveSpeed = 5;
 
 	// Use this for initialization
 	void Start () {
@@ -11,14 +11,19 @@ public class Paddle : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 	    if (Input.GetKey(KeyCode.LeftArrow))
         {
-            GetComponent<Transform>().position -= new Vector3(moveSpeed, 0 , 0);
+            GetComponent<Rigidbody2D>().velocity = new Vector2(-1 * moveSpeed, 0);
         }
         else if (Input.GetKey(KeyCode.RightArrow))
         {
-            GetComponent<Transform>().position += new Vector3(moveSpeed, 0, 0);
+            GetComponent<Rigidbody2D>().velocity = new Vector2(moveSpeed, 0);
         }
+        else
+        {
+            GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        }
+        Debug.Log("Paddle velocity: " + GetComponent<Rigidbody2D>().velocity);
 	}
 }
