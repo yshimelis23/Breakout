@@ -3,11 +3,21 @@ using System.Collections;
 
 public class Ball : MonoBehaviour {
 
-    public float moveSpeed = 1.0f;
-	// Use this for initialization
-	void Start () {
-        GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -1* moveSpeed), ForceMode2D.Impulse);
-        Debug.Log("In Ball.Start(), should have applied force");
+    [SerializeField]
+    private float moveSpeed = 1.0f; /// <summary>
+    /// Current speed of the ball, or initial speed if it hasn't launched.
+    /// </summary>
+    [SerializeField]
+    private float speedIncreaseOnClear = .5f; /// <summary>
+    /// Increase in speed when a row is cleared
+    /// </summary>
+
+    bool hasLaunched = false;
+
+    Rigidbody2D mRigidBody2D;
+    // Use this for initialization
+    void Start () {
+        mRigidBody2D = GetComponent<Rigidbody2D>(); 
 	}
 	
 	// Update is called once per frame
@@ -15,30 +25,53 @@ public class Ball : MonoBehaviour {
 	
 	}
 
+    public void Launch()
+    {
+        if (!hasLaunched)
+        {
+            GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -1 * moveSpeed), ForceMode2D.Impulse);
+            hasLaunched = true;
+        }
+    }
+
 
     void OnCollisionEnter2D(Collision2D coll)
     {
         /* Pseudocode
-         * If hit Brick, call the Brick's collisionWithBall
+         * If hit Brick, Brick will handle its own side of things
          * If hit Paddle, calculate new angle based on dist from paddle center 
          * Else, reflect angle
          * Note: handle collision with floor in OnTriggerEnter2D()
          */
-        if (coll.gameObject.GetComponent<Brick>()) // if wall/ceiling, reflect angle
-        {
-            //TODO: handle brick ticking
-        }
-        if (coll.gameObject.GetComponent<Paddle>())
+        Debug.Log("Ball Collision: ");
+        Debug.Log("Contact at " + coll.contacts[0].point);
+        Debug.Log("My Position: " + transform.position);
+        Debug.Log("Colliding object position: " + coll.transform.position);
+        if (coll.gameObject.GetComponent<Paddle>()) // handle paddle collison
         {
             //TODO: calculate angle based on dist from center of paddle
+            
+            //Temprorary paddle angle code:
+            Vector2 newDir = (transform.position - coll.transform.position).normalized;
+            mRigidBody2D.velocity = moveSpeed * newDir;
         }
-        else
+        else // reflect the angle across the normal of the other surface
         {
-            //TODO: reflect ball
-        } 
+            Vector2 normal = coll.contacts[0].normal;
+            //Debug.Log("relativeVel is " + coll.relativeVelocity);
+            mRigidBody2D.AddForce(Vector2.Reflect(coll.relativeVelocity.normalized, normal) * moveSpeed, ForceMode2D.Impulse);
+            //Debug.Log("New: " + mRigidBody2D.velocity);
+        }
     }
     void OnTriggerEnter2D(Collider2D coll)
     {
+        if (coll.gameObject.layer == LayerMask.NameToLayer("Floor"))
+        {
+            // TODO: inform GameManager that ball died;
+            GameManager.instance.BallDied();
+            Destroy(gameObject);
 
+        }
     }
+
 }
