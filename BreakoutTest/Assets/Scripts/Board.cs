@@ -3,22 +3,16 @@ using System.Collections;
 
 public class Board : MonoBehaviour {
 
-    int numRows = 8;
-    int numColumns = 11;
-    
-
-    struct Row
-    {
-        Brick[] mBrick;
-        int mNum;
-    }
-    Row[] mRows;
+    [SerializeField]
+    private RowManager[] mRows; // assign rows in editor
+    int numRowsAlive;
 
 	// Use this for initialization
 	void Start () {
-	    for( int i = 0; i < numColumns; i++)
+        numRowsAlive = mRows.Length;
+        foreach (RowManager r in mRows)
         {
-            
+            r.mBoard = this; //TODO: fix this lol
         }
 	}
 	
@@ -26,6 +20,33 @@ public class Board : MonoBehaviour {
 	void Update () {
 	
 	}
+
+    public void Reset()
+    {
+        Debug.Log("In RowManager.Reset()");
+        foreach (RowManager r in mRows)
+        {
+            numRowsAlive++;
+            r.ResetRow();
+        }
+    }
+
+    public void RowCleared()
+    {
+        Debug.Log("Row Cleared");
+        numRowsAlive--;
+        if (numRowsAlive == 0)
+        {
+            BoardCleared();
+        }
+    }
+
+    void BoardCleared()
+    {
+        //TODO: implement level change
+        Debug.Log("Board Cleared");
+        GameManager.instance.LevelCleared();
+    }
 }
 
 

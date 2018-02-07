@@ -6,19 +6,42 @@ public class RowManager : MonoBehaviour {
     [SerializeField]
     private Brick[] mBricks;
     [SerializeField]
-    private Board mBoard;
-
+    private BrickColor mColor;
     int bricksActive;
 
-	// Use this for initialization
-	void Start () {
+    public Board mBoard;
+
+    // Use this for initialization
+    void Start() {
         bricksActive = mBricks.Length;
+        foreach (Brick brick in mBricks)
+        {
+            brick.SetColor(mColor);
+            brick.mRowManager = this;
+        }
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+        //Debug:
+	    if (Input.GetKeyDown(KeyCode.K))
+        {
+            foreach (Brick b in mBricks)
+            {
+                b.TakeHit();
+            }
+        }
 	}
+
+    public void ResetRow()
+    {
+        foreach (Brick b in mBricks)
+        {
+            bricksActive++;
+            b.Reset();
+            b.SetColor(mColor);
+        }
+    }
 
     public void BrickDestroyed()
     {
@@ -31,8 +54,9 @@ public class RowManager : MonoBehaviour {
 
     private void OnDestroy()
     {
-        //TODO: Notify board the row has been destroyed
-        //TODO: play any visual effects
-        //TODO: Notify GameManager that row has been destroyed
+        //TODO: Notify manager + board the row has been destroyed
+        //TODO: play any visual/audio effects
+        GameManager.instance.RowCleared();
+        mBoard.RowCleared();
     }
 }

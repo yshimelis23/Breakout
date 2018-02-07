@@ -3,8 +3,7 @@ using System.Collections;
 
 public class Ball : MonoBehaviour {
 
-    [SerializeField]
-    private float moveSpeed = 1.0f; /// <summary>
+    private float moveSpeed = 2.5f; /// <summary>
     /// Current speed of the ball, or initial speed if it hasn't launched.
     /// </summary>
     [SerializeField]
@@ -21,9 +20,10 @@ public class Ball : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        mRigidBody2D.velocity = mRigidBody2D.velocity.normalized * moveSpeed;
-	}
+	void FixedUpdate () {
+        mRigidBody2D.velocity = mRigidBody2D.velocity.normalized * moveSpeed; //maintain constant speed
+        //Debug.Log("Speed is: " + mRigidBody2D.velocity.magnitude);
+    }
 
     public void Launch()
     {
@@ -32,6 +32,11 @@ public class Ball : MonoBehaviour {
             GetComponent<Rigidbody2D>().AddForce(new Vector2(0, -1 * moveSpeed), ForceMode2D.Impulse);
             hasLaunched = true;
         }
+    }
+
+    public void IncreaseSpeed()
+    {
+        moveSpeed += speedIncreaseOnClear;
     }
 
 
@@ -43,10 +48,6 @@ public class Ball : MonoBehaviour {
          * Else, reflect angle
          * Note: handle collision with floor in OnTriggerEnter2D()
          */
-        Debug.Log("Ball Collision: ");
-        Debug.Log("Contact at " + coll.contacts[0].point);
-        Debug.Log("My Position: " + transform.position);
-        Debug.Log("Colliding object position: " + coll.transform.position);
         if (coll.gameObject.GetComponent<Paddle>()) // handle paddle collison
         {
             //TODO: calculate angle based on dist from center of paddle
@@ -60,12 +61,11 @@ public class Ball : MonoBehaviour {
             Vector2 normal = coll.contacts[0].normal;
             //Debug.Log("relativeVel is " + coll.relativeVelocity);
             mRigidBody2D.AddForce(Vector2.Reflect(coll.relativeVelocity.normalized, normal).normalized * moveSpeed, ForceMode2D.Impulse);
-            Debug.Log("Speed is: " + mRigidBody2D.velocity.magnitude);
             //Debug.Log("New: " + mRigidBody2D.velocity);
         }
     }
 
-    void OnCollisionExit2D(Collision2D coll)
+    void OnCollisionExit2D(Collision2D coll) // TODO: remove this when I'm done
     {
         if (coll.gameObject.GetComponent<Paddle>())
         {

@@ -5,6 +5,10 @@ using System.Collections;
 public class GameManager : MonoBehaviour {
 
     public static GameManager instance = null;
+    //Board Reference, assign in editor
+    [SerializeField]
+    private Board mBoard;
+
     //Ball info
     [SerializeField]
     private Ball activeBall;
@@ -22,6 +26,8 @@ public class GameManager : MonoBehaviour {
     private Text scoreLabel;
     [SerializeField]
     private Text levelLabel;
+    [SerializeField]
+    private Text gameOverScoreLabel;
 
     //Gamestate info
     int livesLeft = 3;
@@ -71,7 +77,7 @@ public class GameManager : MonoBehaviour {
 
     void GameOver()
     {
-        //TODO: enable gameover UI element
+        //TODO: enable gameover UI elements
         if (gameOverPanel)
         {
             gameOverPanel.SetActive(true);
@@ -91,6 +97,7 @@ public class GameManager : MonoBehaviour {
             Debug.Log("Already in play, can't restart!");
             return;
         }
+        mBoard.Reset();
         gameOverPanel.SetActive(false);
         livesLeft = 3;
         currentLevel = 1;
@@ -128,12 +135,20 @@ public class GameManager : MonoBehaviour {
         score += points;
         UpdateLabels();
     }
-
-    void LevelCleared()
+    public void RowCleared()
     {
+        activeBall.IncreaseSpeed();
+    }
+
+    public void LevelCleared()
+    {
+        Debug.Log("Level Cleared");
         //TODO: Play effects for level increase
         currentLevel++;
+   
         UpdateLabels();
+        mBoard.Reset();
+        //TODO: handle active ball behavior;
     }
 
     void UpdateLabels()
@@ -150,5 +165,11 @@ public class GameManager : MonoBehaviour {
         {
             scoreLabel.text = "Score: " + score;
         }
+        if (gameOverScoreLabel != null)
+        {
+            gameOverScoreLabel.text = "Score: " + score;
+        }
     }
+
+    
 }

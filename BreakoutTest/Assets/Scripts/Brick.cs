@@ -2,20 +2,21 @@
 using System.Collections;
 
 public enum BrickState {Untouched, Weakened, Destroyed};
+public enum BrickColor {Yellow, Green, Orange, Red};
 
 public class Brick : MonoBehaviour {
-    [SerializeField]
-    private RowManager mRowManager;
+    public RowManager mRowManager;
     [SerializeField]
     private int mValue = 1;
 
     BrickState mState = BrickState.Untouched;
+    //BrickColor mColor = BrickColor.Yellow;
 
 
 
 	// Use this for initialization
 	void Start () {
-        GetComponent<Renderer>().material.color = Color.cyan;
+        //GetComponent<Renderer>().material.color = Color.cyan;
 	}
 	
 	// Update is called once per frame
@@ -34,6 +35,33 @@ public class Brick : MonoBehaviour {
                 DestroyBrick();
                 break;
             default:
+                break;
+        }
+    }
+
+    public void SetColor(BrickColor color)
+    {
+        switch (color)
+        {
+            case BrickColor.Yellow:
+                mValue = 1;
+                GetComponent<Renderer>().material.color = Color.yellow;
+                break;
+            case BrickColor.Green:
+                mValue = 3;
+                GetComponent<Renderer>().material.color = Color.green;
+                break;
+            case BrickColor.Orange:
+                mValue = 5;
+                GetComponent<Renderer>().material.color = new Color(1, 165f / 255f, 0);
+                break;
+            case BrickColor.Red:
+                mValue = 7;
+                GetComponent<Renderer>().material.color = Color.red;
+                break;
+            default:
+                mValue = 1;
+                GetComponent<Renderer>().material.color = Color.white;
                 break;
         }
     }
@@ -61,6 +89,10 @@ public class Brick : MonoBehaviour {
         {
             mRowManager.BrickDestroyed();
         }
+        else
+        {
+            Debug.Log("Brick missing reference to RowManager");
+        }
         GameManager.instance.IncreaseScore(mValue);
         gameObject.SetActive(false); // disable object rather than destroy it, because it'll be reused for future levels.
     }
@@ -71,5 +103,15 @@ public class Brick : MonoBehaviour {
         {
             TakeHit();
         }
+    }
+
+    /// <summary>
+    /// Set State to Untouched and Undo any other effects
+    /// </summary>
+    public void Reset()
+    {
+        //Debug.Log("In reset");
+        mState = BrickState.Untouched;
+        gameObject.SetActive(true);
     }
 }

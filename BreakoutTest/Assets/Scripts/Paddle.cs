@@ -2,8 +2,8 @@
 using System.Collections;
 
 public class Paddle : MonoBehaviour {
-
-    float moveSpeed = 5;
+    [SerializeField]
+    private float moveSpeed = 5;
 
 	// Use this for initialization
 	void Start () {
@@ -24,6 +24,5 @@ public class Paddle : MonoBehaviour {
         {
             GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         }
-        Debug.Log("Paddle velocity: " + GetComponent<Rigidbody2D>().velocity);
 	}
 }
