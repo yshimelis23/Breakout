@@ -10,14 +10,13 @@ public class Brick : MonoBehaviour {
     private int mValue = 1;
 
     BrickState mState = BrickState.Untouched;
-    //BrickColor mColor = BrickColor.Yellow;
 
 
 
 	// Use this for initialization
 	void Start () {
-        //GetComponent<Renderer>().material.color = Color.cyan;
-	}
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -69,9 +68,8 @@ public class Brick : MonoBehaviour {
     private void WeakenBrick()
     {
         mState = BrickState.Weakened;
-        //TODO: handle any effects
+        //TODO: handle any sound effects
 
-        //placeholder weakening effects
         Color newColor = GetComponent<Renderer>().material.color;
         float opacity = newColor.a;
         newColor *= .5f;

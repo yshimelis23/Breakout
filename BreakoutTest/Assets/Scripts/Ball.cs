@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class Ball : MonoBehaviour {
 
@@ -13,6 +14,18 @@ public class Ball : MonoBehaviour {
 
     bool hasLaunched = false;
 
+    public bool inPlay
+    {
+        get
+        {
+            return hasLaunched;
+        }
+        set
+        {
+            hasLaunched = inPlay;
+        }
+    }
+
     Rigidbody2D mRigidBody2D;
     // Use this for initialization
     void Start () {
@@ -21,10 +34,27 @@ public class Ball : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-        mRigidBody2D.velocity = mRigidBody2D.velocity.normalized * moveSpeed; //maintain constant speed
+        if (inPlay)
+        {
+            mRigidBody2D.velocity = mRigidBody2D.velocity.normalized * moveSpeed; //maintain constant speed
+        }
+
+        //Debug.Log(mRigidBody2D.velocity);
         //Debug.Log("Speed is: " + mRigidBody2D.velocity.magnitude);
     }
 
+    /// <summary>
+    /// Stops the ball
+    /// </summary>
+    public void Stop()
+    {
+        inPlay = false;
+        hasLaunched = false;
+        mRigidBody2D.velocity = Vector2.zero;
+    }
+    /// <summary>
+    /// Launches Ball if it isn't already in play
+    /// </summary>
     public void Launch()
     {
         if (!hasLaunched)
@@ -34,6 +64,9 @@ public class Ball : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// increments speed by member variable <b>speedIncreaseOnClear</b>
+    /// </summary>
     public void IncreaseSpeed()
     {
         moveSpeed += speedIncreaseOnClear;
@@ -50,19 +83,23 @@ public class Ball : MonoBehaviour {
          */
         if (coll.gameObject.GetComponent<Paddle>()) // handle paddle collison
         {
-            //TODO: calculate angle based on dist from center of paddle
-            
-            //Temprorary paddle angle code:
             Vector2 newDir = (transform.position - coll.transform.position).normalized;
             mRigidBody2D.velocity = moveSpeed * newDir;
         }
         else // reflect the angle across the normal of the other surface
         {
             Vector2 normal = coll.contacts[0].normal;
-            //Debug.Log("relativeVel is " + coll.relativeVelocity);
             mRigidBody2D.AddForce(Vector2.Reflect(coll.relativeVelocity.normalized, normal).normalized * moveSpeed, ForceMode2D.Impulse);
-            //Debug.Log("New: " + mRigidBody2D.velocity);
         }
+    }
+
+    /// <summary>
+    /// calls Launch() after t seconds
+    /// </summary>
+    /// <param name="t"></param>
+    public void LaunchOnDelay(float t)
+    {
+        Invoke("Launch", t);
     }
 
     void OnCollisionExit2D(Collision2D coll) // TODO: remove this when I'm done
@@ -81,7 +118,7 @@ public class Ball : MonoBehaviour {
     {
         if (coll.gameObject.layer == LayerMask.NameToLayer("Floor"))
         {
-            // TODO: inform GameManager that ball died, then destroy self
+            //inform gamemanager that ball hit killzone, then destroy
             GameManager.instance.BallDied();
             Destroy(gameObject);
         }

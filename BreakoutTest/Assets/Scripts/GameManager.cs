@@ -9,10 +9,20 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private Board mBoard;
 
-    //Ball info
+    //Ball info, assign first ball in editor
+    /// <summary>
+    /// The ball. New balls will launch from this ball's starting position.
+    /// </summary>
     [SerializeField]
     private Ball activeBall;
-    Vector3 startingBallPosition;
+    Vector3 startingBallPosition; // where to spawn new balls, taken from activeBall's initial position when game starts
+
+    //Paddle info
+    /// <summary>
+    /// The paddle, assign or it won't shrink on level clear.
+    /// </summary>
+    [SerializeField]
+    private Paddle mPaddle; // paddle, assign in editor
 
     //UI references, should be assigned through editor
     [SerializeField]
@@ -29,12 +39,12 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private Text gameOverScoreLabel;
 
+
     //Gamestate info
     int livesLeft = 3;
     int currentLevel = 1;
     int score = 0;
     bool inPlay = false;
-    //TODO: add ref to a brick manager of some kind
 
     void Awake ()
     {
@@ -59,12 +69,6 @@ public class GameManager : MonoBehaviour {
 
     public void StartGame()
     {
-        //TODO: launch ball enable/disable UI elements as needed
-        if (inPlay)
-        {
-            Debug.Log("Already playing!");
-            return;
-        }
         startingBallPosition = activeBall.transform.position;
         activeBall.Launch();
         startButton.SetActive(false);
@@ -75,9 +79,23 @@ public class GameManager : MonoBehaviour {
         inPlay = true;
     }
 
+    /// <summary>
+    /// Reset ball to starting position and launch downwards with its movespeed unchanged.
+    /// </summary>
+    public void ResetBall(float delay = 3)
+    {
+        Debug.Log("ResetBall called");
+        activeBall.Stop();
+        activeBall.transform.position = startingBallPosition;
+        activeBall.LaunchOnDelay(delay);
+    }
+
+ 
+    /// <summary>
+    /// Enables post-game UI, sets inPlay to false
+    /// </summary>
     void GameOver()
     {
-        //TODO: enable gameover UI elements
         if (gameOverPanel)
         {
             gameOverPanel.SetActive(true);
@@ -91,7 +109,6 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     public void RestartGame()
     {
-        //TODO: reset board
         if (inPlay)
         {
             Debug.Log("Already in play, can't restart!");
@@ -103,21 +120,22 @@ public class GameManager : MonoBehaviour {
         currentLevel = 1;
         score = 0;
         SpawnNewBall();
+        mPaddle.UnShrink();
         StartGame();
     }
 
+    /// <summary>
+    /// Create a new ball at the spawn point.
+    /// </summary>
     void SpawnNewBall()
     {
-        //TODO: spawn new ball at startingBallPosition and Launch
         GameObject newBall = Instantiate(Resources.Load<GameObject>("Prefabs/Ball"), startingBallPosition, transform.rotation) as GameObject;
         activeBall = newBall.GetComponent<Ball>();
-        //activeBall.transform.position = startingBallPosition;
-        activeBall.Launch();
+        activeBall.LaunchOnDelay(2);
     }
 
     public void BallDied()
     {
-        //TODO: dec livesLeft and spawn new Ball
         livesLeft -= 1;
         UpdateLabels(); 
         if (livesLeft > 0)
@@ -129,7 +147,11 @@ public class GameManager : MonoBehaviour {
             GameOver();
         }
     }
-
+    
+    /// <summary>
+    /// Increases score by <b>points</b> and updates HUD
+    /// </summary>
+    /// <param name="points"></param>
     public void IncreaseScore(int points)
     {
         score += points;
@@ -140,17 +162,27 @@ public class GameManager : MonoBehaviour {
         activeBall.IncreaseSpeed();
     }
 
+    /// <summary>
+    /// Sets up new level, Resets ball, updates gamestate info, shrinks paddle if first level was just cleared.
+    /// </summary>
     public void LevelCleared()
     {
         Debug.Log("Level Cleared");
-        //TODO: Play effects for level increase
+        //if cleared the first level, shrink the paddle
+        if (currentLevel == 1)
+        {
+            mPaddle.Shrink();
+        }
         currentLevel++;
    
         UpdateLabels();
-        mBoard.Reset();
-        //TODO: handle active ball behavior;
+        mBoard.DelayedReset(2); // was having problems disabling then enabling the bricks too quickly;
+        ResetBall();
     }
 
+    /// <summary>
+    /// Update HUD to reflect gamestate variables
+    /// </summary>
     void UpdateLabels()
     {
         if (livesLabel != null)

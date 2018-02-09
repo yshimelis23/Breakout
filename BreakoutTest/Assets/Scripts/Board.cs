@@ -3,8 +3,11 @@ using System.Collections;
 
 public class Board : MonoBehaviour {
 
+    /// <summary>
+    /// Rows of bricks that form board
+    /// </summary>
     [SerializeField]
-    private RowManager[] mRows; // assign rows in editor
+    private RowManager[] mRows;
     int numRowsAlive;
 
 	// Use this for initialization
@@ -12,7 +15,7 @@ public class Board : MonoBehaviour {
         numRowsAlive = mRows.Length;
         foreach (RowManager r in mRows)
         {
-            r.mBoard = this; //TODO: fix this lol
+            r.mBoard = this;
         }
 	}
 	
@@ -21,9 +24,11 @@ public class Board : MonoBehaviour {
 	
 	}
 
+    /// <summary>
+    /// Reset rows in board
+    /// </summary>
     public void Reset()
     {
-        Debug.Log("In RowManager.Reset()");
         foreach (RowManager r in mRows)
         {
             numRowsAlive++;
@@ -31,9 +36,19 @@ public class Board : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Calls Reset() on a t second delay.
+    /// </summary>
+    public void DelayedReset(float t)
+    {
+        Invoke("Reset", t);
+    }
+
+    /// <summary>
+    /// Decrements active row count and calls BoardCleared() if all rows have been cleared
+    /// </summary>
     public void RowCleared()
     {
-        Debug.Log("Row Cleared");
         numRowsAlive--;
         if (numRowsAlive == 0)
         {
@@ -41,10 +56,11 @@ public class Board : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Notifies GameManager that board has been cleared
+    /// </summary>
     void BoardCleared()
     {
-        //TODO: implement level change
-        Debug.Log("Board Cleared");
         GameManager.instance.LevelCleared();
     }
 }

@@ -33,6 +33,9 @@ public class RowManager : MonoBehaviour {
         }
 	}
 
+    /// <summary>
+    /// Reset members of mBricks
+    /// </summary>
     public void ResetRow()
     {
         foreach (Brick b in mBricks)
@@ -43,19 +46,24 @@ public class RowManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Decrements count of live bricks and calls OnRoyCLeared() if none left
+    /// </summary>
     public void BrickDestroyed()
     {
         bricksActive--;
         if (bricksActive == 0)
         {
-            OnDestroy();
+            OnRowCleared();
         }
     }
 
-    private void OnDestroy()
+    /// <summary>
+    /// Notify GameManager and Board that a row has been cleared
+    /// </summary>
+    private void OnRowCleared()
     {
-        //TODO: Notify manager + board the row has been destroyed
-        //TODO: play any visual/audio effects
+        //Notify manager + board the row has been destroyed
         GameManager.instance.RowCleared();
         mBoard.RowCleared();
     }
