@@ -4,13 +4,24 @@ using System;
 
 public class Ball : MonoBehaviour {
 
-    private float moveSpeed = 2.5f; /// <summary>
+    /// <summary>
     /// Current speed of the ball, or initial speed if it hasn't launched.
     /// </summary>
-    [SerializeField]
-    private float speedIncreaseOnClear = .5f; /// <summary>
+    private float moveSpeed = 2.5f;
+    /// <summary>
     /// Increase in speed when a row is cleared
     /// </summary>
+    [SerializeField]
+    private float speedIncreaseOnClear = .5f;
+    /// <summary>
+    /// Sound Effects that play on collision, assign in editor
+    /// </summary>
+    [SerializeField]
+    private AudioClip[] mCollisionSounds;
+    /// <summary>
+    /// index of sound to play from mCollisionSounds
+    /// </summary>
+    int mSoundCounter = 0;
 
     bool hasLaunched = false;
 
@@ -27,9 +38,11 @@ public class Ball : MonoBehaviour {
     }
 
     Rigidbody2D mRigidBody2D;
+    AudioSource mAudioSource;
     // Use this for initialization
     void Start () {
-        mRigidBody2D = GetComponent<Rigidbody2D>(); 
+        mRigidBody2D = GetComponent<Rigidbody2D>();
+        mAudioSource = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -90,6 +103,13 @@ public class Ball : MonoBehaviour {
         {
             Vector2 normal = coll.contacts[0].normal;
             mRigidBody2D.AddForce(Vector2.Reflect(coll.relativeVelocity.normalized, normal).normalized * moveSpeed, ForceMode2D.Impulse);
+        }
+
+        mAudioSource.PlayOneShot(mCollisionSounds[mSoundCounter]);
+        mSoundCounter++;
+        if (mSoundCounter == mCollisionSounds.Length)
+        {
+            mSoundCounter = 0;
         }
     }
 
