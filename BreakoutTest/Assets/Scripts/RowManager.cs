@@ -24,7 +24,7 @@ public class RowManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         //Debug:
-	    if (Input.GetKeyDown(KeyCode.K))
+	    if (Input.GetKeyDown(KeyCode.K) && Application.isEditor)
         {
             foreach (Brick b in mBricks)
             {
